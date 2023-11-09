@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Notes | JavaScript Project</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="notes">
+            <div id="create">
+                <i class="fa-solid fa-plus"></i>
+                <div class="createBox">
+                    <div class="innerCreateBox">
+                        <textarea placeholder="Write Here . . ." id="userInput" maxlength="160"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let createBox = document.getElementsByClassName("createBox")[0];
+        let notes = document.getElementsByClassName("notes")[0];
+        let input = document.getElementById("userInput");
+        let i = 0;
+
+        document.getElementById("create").addEventListener("mousedown", function () {
+            createBox.style.display = "block";
+        });
+
+        input.addEventListener("keydown", function (e) {
+            if (e.keyCode === 13) {
+                content(e);
+            }
+        });
+
+        function content(e) {
+            if (e.keyCode === 13 && input.value.trim() !== "") {
+                divStyle(input.value);
+                input.value = "";
+                createBox.style.display = "none";
+            }
+        }
+
+        function color() {
+            let randomColors = ["#c2ff3d", "#ff3de8", "#3dc2ff", "#04e022", "#bc83e6", "#ebb328"];
+            if (i > randomColors.length - 1) {
+                i = 0;
+            }
+            return randomColors[i++];
+        }
+
+        function divStyle(text, index = -1) {
+            let note;
+            if (index === -1) {
+                note = document.createElement("div");
+                note.className = "note";
+                note.innerHTML = '<div class="details">' + '<h3>' + text + '<h3>' + '</div>';
+                note.setAttribute('style', 'background:' + color() + '');
+                notes.appendChild(note);
+            } else {
+                note = notes.children[index];
+                let details = note.querySelector(".details");
+                details.innerHTML = '<h3>' + text + '<h3>';
+            }
+            note.addEventListener("dblclick", function () {
+                note.remove();
+            });
+
+            note.addEventListener("click", function (event) {
+                if (event.detail === 1 && !note.classList.contains("edit-mode")) {
+                    enterEditMode(note);
+                }
+            });
+        }
+
+        function enterEditMode(note) {
+            note.classList.add("edit-mode");
+            const text = note.querySelector(".details h3").textContent;
+            const input = document.createElement("input");
+            input.value = text;
+            input.classList.add("edit-input");
+            note.innerHTML = "";
+            note.appendChild(input);
+            input.focus();
+
+            input.addEventListener("blur", function () {
+                exitEditMode(note, input);
+            });
+
+            input.addEventListener("keydown", function (e) {
+                if (e.keyCode === 13) {
+                    exitEditMode(note, input);
+                }
+            });
+        }
+
+        function exitEditMode(note, input) {
+            const editedText = input.value;
+            note.innerHTML = '<div class="details">' + '<h3>' + editedText + '<h3>' + '</div>';
+            note.classList.remove("edit-mode");
+        }
+    </script>
+</body>
+
+</html>
